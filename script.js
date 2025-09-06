@@ -1,4 +1,4 @@
-const API_URL = 'https://backend-0k1d.onrender.com';
+const API_URL = 'https://backend-0k1d.onrender.com/api';
 
 // Register new user with the backend
 async function register() {
