@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Attendance Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="navbar">
+    <h1>Attendance Tracker</h1>
+    <div>
+      <span>Welcome, <strong id="student-name"></strong></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2>Add Subject</h2>
+      <input type="text" id="subject-input" placeholder="Enter subject name">
+      <button onclick="addSubject()">Add Subject</button>
+    </div>
+
+    <div class="section">
+      <h2>Mark Attendance</h2>
+      <label for="date">Date:</label>
+      <input type="date" id="date">
+      <select id="subject-select"></select>
+      <select id="status">
+        <option value="Present">Present</option>
+        <option value="Absent">Absent</option>
+      </select>
+      <button onclick="markAttendance()">Mark Attendance</button>
+    </div>
+
+    <div class="section">
+      <h2>Reports</h2>
+      <button onclick="openRecordsPage()">📑 View Attendance Records</button>
+    </div>
+
+    <div class="section">
+      <h2>Attendance Percentage</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Present</th>
+            <th>Total</th>
+            <th>Percentage</th>
+          </tr>
+        </thead>
+        <tbody id="percentage-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let allUserData = {}; // Store the fetched data
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const user = localStorage.getItem("loggedInUser");
+      if (!user) {
+        alert("Please login first!");
+        window.location.href = "index.html";
+        return;
+      }
+      document.getElementById("student-name").textContent = user;
+
+      await loadUserData();
+      loadSubjects();
+      calculatePercentage();
+    });
+
+    async function loadUserData() {
+      const user = localStorage.getItem("loggedInUser");
+      try {
+        const response = await fetch(`${API_URL}/user-data/${user}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+        allUserData = await response.json();
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        alert('Could not load user data from server.');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    }
+
+    async function addSubject() {
+      const user = localStorage.getItem("loggedInUser");
+      const subject = document.getElementById("subject-input").value.trim();
+      if (!subject) return alert("Enter a subject name");
+
+      try {
+        const response = await fetch(`${API_URL}/add-subject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, subject })
+        });
+        const data = await response.json();
+        alert(data.message);
+        
+        if (response.ok) {
+          await loadUserData();
+          document.getElementById("subject-input").value = "";
+          loadSubjects();
+          calculatePercentage();
+        }
+      } catch (error) {
+        console.error('Error adding subject:', error);
+        alert('Failed to add subject.');
+      }
+    }
+
+    function loadSubjects() {
+      const select = document.getElementById("subject-select");
+      select.innerHTML = "";
+      if (allUserData.subjects) {
+        allUserData.subjects.forEach(sub => {
+          let option = document.createElement("option");
+          option.value = sub;
+          option.textContent = sub;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    async function markAttendance() {
+      const user = localStorage.getItem("loggedInUser");
+      const date = document.getElementById("date").value;
+      const subject = document.getElementById("subject-select").value;
+      const status = document.getElementById("status").value;
+
+      if (!date || !subject) {
+        alert("Please select date and subject");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/mark-attendance`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, date, subject, status })
+        });
+        const data = await response.json();
+        alert(data.message);
+        
+        if (response.ok) {
+          await loadUserData();
+          calculatePercentage();
+        }
+      } catch (error) {
+        console.error('Error marking attendance:', error);
+        alert('Failed to mark attendance.');
+      }
+    }
+
+    function calculatePercentage() {
+      const records = allUserData.records || [];
+      const subjects = allUserData.subjects || [];
+
+      const table = document.getElementById("percentage-table");
+      table.innerHTML = "";
+
+      subjects.forEach(sub => {
+        const subRecords = records.filter(r => r.subject === sub);
+        const total = subRecords.length;
+        const present = subRecords.filter(r => r.status === "Present").length;
+        const percent = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
+
+        const row = `<tr>
+          <td>${sub}</td>
+          <td>${present}</td>
+          <td>${total}</td>
+          <td>${percent}%</td>
+        </tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    function openRecordsPage() {
+      window.location.href = "records.html";
+    }
+  </script>
+</body>
+</html>

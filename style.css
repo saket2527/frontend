@@ -1,0 +1,142 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #b1d4e0; /* soft blue background */
+  color: #0c2d48;
+}
+
+/* Navbar */
+.navbar {
+  width: 100%;
+  background: #0c2d48; /* dark navy */
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.navbar h1 {
+  font-size: 22px;
+  color: #b1d4e0;
+}
+
+.navbar button {
+  background: #145da0; /* royal blue */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.navbar button:hover {
+  background: #2e8bc0; /* sky blue hover */
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Section Cards */
+.section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 25px;
+}
+
+.section h2 {
+  margin-bottom: 15px;
+  color: #145da0;
+  border-bottom: 2px solid #b1d4e0;
+  padding-bottom: 5px;
+}
+
+/* Inputs & Buttons */
+input, select, button {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #2e8bc0;
+  font-size: 15px;
+}
+
+button {
+  background: #145da0;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #2e8bc0;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+th {
+  background: #145da0;
+  color: white;
+}
+
+tr:hover {
+  background: #e6f2f8;
+}
+
+/* Records Page Sections */
+.subject-section {
+  margin-top: 25px;
+  padding: 20px;
+  border: 1px solid #b1d4e0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+}
+
+.subject-section h2 {
+  margin-bottom: 10px;
+  color: #145da0;
+  border-left: 5px solid #2e8bc0;
+  padding-left: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  input, select, button {
+    max-width: 100%;
+  }
+}

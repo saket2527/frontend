@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Records</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="navbar">
+    <h1>Attendance Tracker</h1>
+    <button onclick="goBack()">⬅ Back to Dashboard</button>
+  </div>
+
+  <div class="container">
+    <h2>Detailed Attendance Records</h2>
+    <div id="records-container"></div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const user = localStorage.getItem("loggedInUser");
+      if (!user) {
+        alert("Please login first!");
+        window.location.href = "index.html";
+        return;
+      }
+      await loadRecords(user);
+    });
+
+    async function loadRecords(user) {
+      const container = document.getElementById("records-container");
+      container.innerHTML = "";
+
+      try {
+        const response = await fetch(`${API_URL}/user-data/${user}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch records');
+        }
+        const userData = await response.json();
+        const records = userData.records || [];
+
+        if (records.length === 0) {
+          container.innerHTML = "<p>No attendance records yet!</p>";
+          return;
+        }
+
+        // Group by subject
+        const grouped = {};
+        records.forEach(r => {
+          if (!grouped[r.subject]) grouped[r.subject] = [];
+          grouped[r.subject].push(r);
+        });
+
+        // Create a section for each subject
+        for (const subject in grouped) {
+          const section = document.createElement("div");
+          section.classList.add("subject-section");
+
+          const heading = document.createElement("h2");
+          heading.textContent = subject;
+          section.appendChild(heading);
+
+          const table = document.createElement("table");
+          table.innerHTML = `
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${grouped[subject]
+                .map(r => `<tr><td>${r.date}</td><td>${r.status}</td></tr>`)
+                .join("")}
+            </tbody>
+          `;
+          section.appendChild(table);
+          container.appendChild(section);
+        }
+      } catch (error) {
+        console.error('Error loading records:', error);
+        container.innerHTML = `<p>Error: Could not load records.</p>`;
+      }
+    }
+
+    function goBack() {
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>
